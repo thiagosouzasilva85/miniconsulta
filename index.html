@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
@@ -120,10 +120,7 @@
   </div>
 
   <script>
-    // ⚠️ TROCAR PELA SUA API KEY REAL
-    const OPENAI_API_KEY = "SUA_API_KEY_AQUI";
-
-    // 🧠 Aqui fica o PROMPT SYSTEM – é só editar esse texto quando quiser atualizar o agente
+    // 🧠 Aqui fica o PROMPT SYSTEM – para atualizar o agente, edite APENAS este texto:
     const systemPrompt = `
 Você é a Mini-Consulta IA Dr. Thiago — um agente digital criado para orientar pacientes sobre hérnias, diástase e alterações da parede abdominal, conforme o Método Dr. Thiago Silva. Sua missão é educar o paciente com clareza, empatia e linguagem técnica acessível, sem substituir consulta médica, diagnóstico presencial ou indicação cirúrgica definitiva.
 
@@ -204,24 +201,24 @@ Finalize com despedida cordial usando o nome do paciente, se ele informar.
         // Adiciona mensagem do usuário ao histórico
         chatHistory.push({ role: "user", content: userMessage });
 
-        const response = await fetch("https://api.openai.com/v1/chat/completions", {
+        // Chama a rota do servidor /api/chat (Vercel)
+        const response = await fetch("/api/chat", {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + OPENAI_API_KEY
+            "Content-Type": "application/json"
           },
           body: JSON.stringify({
-            model: "gpt-4o-mini",
             messages: chatHistory
           })
         });
 
         if (!response.ok) {
-          throw new Error("Erro na API: " + (response.statusText || response.status));
+          const errText = await response.text();
+          throw new Error("Erro na API: " + errText);
         }
 
         const data = await response.json();
-        const botText = data.choices?.[0]?.message?.content || "Não consegui gerar uma resposta agora. Tente novamente.";
+        const botText = data.reply || "Não consegui gerar uma resposta agora. Tente novamente.";
 
         // Adiciona resposta da IA ao histórico
         chatHistory.push({ role: "assistant", content: botText });
@@ -229,7 +226,7 @@ Finalize com despedida cordial usando o nome do paciente, se ele informar.
         addMessage(botText, "bot");
       } catch (err) {
         console.error(err);
-        addMessage("Houve um problema ao conectar com a Mini-Consulta. Verifique sua conexão ou sua API key e tente novamente.", "bot");
+        addMessage("Houve um problema ao conectar com a Mini-Consulta. Verifique a configuração da API no servidor e tente novamente.", "bot");
       } finally {
         typingEl.textContent = "";
         sendBtn.disabled = false;
@@ -261,3 +258,4 @@ Finalize com despedida cordial usando o nome do paciente, se ele informar.
   </script>
 </body>
 </html>
+
