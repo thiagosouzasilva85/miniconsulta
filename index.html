@@ -1,3 +1,303 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Mini-Consulta IA Dr. Thiago</title>
+  <style>
+    :root {
+      --bg-dark: #020617;
+      --bg-card: #ffffff;
+      --primary: #0f766e;
+      --primary-soft: #ccfbf1;
+      --accent: #22c55e;
+      --text-main: #0f172a;
+      --text-soft: #64748b;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #0f172a, #020617 55%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 16px;
+      color: var(--text-main);
+    }
+
+    .chat-wrapper {
+      width: 100%;
+      max-width: 480px;
+    }
+
+    .brand-header {
+      text-align: center;
+      color: #e5e7eb;
+      margin-bottom: 10px;
+    }
+
+    .brand-header h1 {
+      font-size: 18px;
+      margin: 0;
+      font-weight: 600;
+    }
+
+    .brand-header p {
+      margin: 4px 0 0;
+      font-size: 13px;
+      opacity: 0.8;
+    }
+
+    .chat-container {
+      width: 100%;
+      height: 80vh;
+      max-height: 680px;
+      background: var(--bg-card);
+      border-radius: 18px;
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.55);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+    }
+
+    .chat-header {
+      padding: 12px 16px;
+      background: linear-gradient(90deg, #0f172a, #134e4a);
+      color: #f9fafb;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 20%, #a7f3d0, #059669);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 700;
+      color: #022c22;
+      border: 2px solid rgba(15, 23, 42, 0.7);
+    }
+
+    .header-text-main {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .header-text-sub {
+      font-size: 11px;
+      opacity: 0.8;
+    }
+
+    .header-tag {
+      font-size: 10px;
+      border-radius: 999px;
+      padding: 4px 10px;
+      background: rgba(15, 23, 42, 0.35);
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      white-space: nowrap;
+    }
+
+    .chat-messages {
+      flex: 1;
+      padding: 12px;
+      overflow-y: auto;
+      background: #f3f4f6;
+    }
+
+    .message {
+      max-width: 90%;
+      margin-bottom: 10px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 14px;
+      line-height: 1.4;
+      white-space: pre-wrap;
+    }
+
+    .message.user {
+      margin-left: auto;
+      background: var(--primary);
+      color: #ecfeff;
+      border-bottom-right-radius: 0;
+    }
+
+    .message.bot {
+      margin-right: auto;
+      background: #ffffff;
+      color: var(--text-main);
+      border-bottom-left-radius: 0;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+    }
+
+    .chat-input-area {
+      padding: 8px 10px;
+      background: #f9fafb;
+      border-top: 1px solid #e5e7eb;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .chat-input-area input {
+      flex: 1;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid #d1d5db;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s, background-color 0.15s;
+    }
+
+    .chat-input-area input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 1px rgba(45, 212, 191, 0.5);
+      background: #ecfeff;
+    }
+
+    .chat-input-area button {
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: none;
+      background: var(--primary);
+      color: #ecfeff;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      transition: background 0.15s, transform 0.08s;
+    }
+
+    .chat-input-area button:hover:not(:disabled) {
+      background: #115e59;
+      transform: translateY(-1px);
+    }
+
+    .chat-input-area button:disabled {
+      opacity: 0.6;
+      cursor: default;
+      transform: none;
+    }
+
+    .typing {
+      font-size: 12px;
+      color: var(--text-soft);
+      padding: 0 4px;
+      min-height: 16px;
+    }
+
+    .chat-footer {
+      padding: 6px 10px 8px;
+      border-top: 1px solid #e5e7eb;
+      background: #f9fafb;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .footer-text {
+      font-size: 10px;
+      color: var(--text-soft);
+    }
+
+    .footer-link {
+      font-size: 11px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: var(--primary-soft);
+      color: #0f766e;
+      text-decoration: none;
+      border: 1px solid rgba(34, 197, 94, 0.4);
+      white-space: nowrap;
+    }
+
+    @media (max-width: 480px) {
+      .chat-container {
+        height: 88vh;
+      }
+      .brand-header {
+        margin-bottom: 6px;
+      }
+      .brand-header h1 {
+        font-size: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-wrapper">
+    <div class="brand-header">
+      <h1>Mini-Consulta IA Dr. Thiago</h1>
+      <p>Orientação educativa sobre hérnias, diástase e abdômen.</p>
+    </div>
+
+    <div class="chat-container">
+      <div class="chat-header">
+        <div class="header-left">
+          <div class="avatar">T</div>
+          <div>
+            <div class="header-text-main">Dr. Thiago Silva</div>
+            <div class="header-text-sub">Cirurgia de Parede Abdominal • Técnicas minimamente invasivas</div>
+          </div>
+        </div>
+        <div class="header-tag">Conteúdo educativo</div>
+      </div>
+
+      <div id="messages" class="chat-messages"></div>
+      <div class="chat-input-area">
+        <div id="typing" class="typing"></div>
+        <div class="input-row">
+          <input id="userInput" type="text" placeholder="Digite sua mensagem..." />
+          <button id="sendBtn">
+            Enviar
+          </button>
+        </div>
+      </div>
+
+      <div class="chat-footer">
+        <div class="footer-text">
+          Não substitui consulta presencial ou exame físico.
+        </div>
+        <a
+          class="footer-link"
+          href="https://wa.me/5581996313869"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Agendar consulta
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ---- PROMPT DO AGENTE ----
+    const systemPrompt = `
 Você é a Mini-Consulta IA Dr. Thiago — um agente digital criado para orientar de forma simples, direta e segura sobre possíveis hérnias, diástase e questões da parede abdominal, seguindo o Método Dr. Thiago Silva. Sua função é educativa, acolhedora e objetiva. Não substitui consulta presencial, exame físico ou diagnóstico médico.
 
 TOM E IDENTIDADE:
@@ -16,7 +316,7 @@ Guiar o paciente com perguntas curtas, uma por vez, para entender:
 - impacto de cirurgias e gestações
 - tamanho provável do defeito
 - sintomas importantes
-- exames já feitos
+- exames já feitos.
 
 REGRAS IMPORTANTES:
 - Nunca dar diagnóstico fechado.
@@ -48,20 +348,20 @@ Se suspeitar ou o paciente não souber informar, oriente o teste dos dedos:
 - joelhos dobrados
 - levantar a cabeça
 - apertar a linha média
-- avaliar quantos dedos entram
+- avaliar quantos dedos entram.
 
 Classificação orientativa:
-- leve: até 2 cm  
-- moderada: 2 a 4 cm  
-- acentuada: acima de 4 cm  
+- leve: até 2 cm
+- moderada: 2 a 4 cm
+- acentuada: acima de 4 cm
 Sempre reforçar: “A confirmação depende do exame físico.”
 
 EXPLICAÇÃO DAS TÉCNICAS (usar quando o assunto surgir):
-- Técnica aberta: corte maior, recuperação mais lenta, mais dor e mais risco de complicações.
-- Técnicas por vídeo (IPUM Plus e Ventral TAPP): indicadas principalmente para hérnias menores, geralmente abaixo de 4 cm; recuperação boa.
-- Técnicas robóticas (eTEP, p-eTEP, IPA, TAR, r-TAR): melhores para corrigir hérnias maiores, geralmente acima de 5 cm, e para tratar hérnias + diástase ao mesmo tempo. Permitindo corrigir toda a linha média com mais precisão e com menos dor. Recuperação costuma ser mais rápida.
-- Se houver flacidez leve ou moderada sem avental grande: correção robótica + lipo + Argoplasma/Renuvion/BodyTite pode ser opção.
-- Se houver excesso de pele grande (avental): abdominoplastia é mais indicada, podendo ser combinada com correção muscular.
+- Técnica aberta: corte maior, recuperação mais lenta, mais dor e maior risco de complicações.
+- Técnicas por vídeo (IPUM Plus e Ventral TAPP): indicadas principalmente para hérnias menores, geralmente abaixo de 4 cm; recuperação costuma ser boa.
+- Técnicas robóticas (eTEP, p-eTEP, IPA, TAR, r-TAR): melhores para corrigir hérnias maiores, geralmente acima de 5 cm, e para tratar hérnias + diástase ao mesmo tempo. Permitem corrigir toda a linha média com mais precisão e com menos dor. A recuperação costuma ser mais rápida.
+- Se houver flacidez leve ou moderada, sem avental grande: correção robótica + lipo + tecnologias de retração de pele (Argoplasma, Renuvion, BodyTite) podem ser opção.
+- Se houver grande excesso de pele em avental: abdominoplastia costuma ser mais indicada, podendo ser combinada com correção muscular.
 - Sempre reforçar: “A técnica ideal só é definida após exame físico.”
 
 SINAIS DE ALERTA (frase obrigatória):
@@ -76,22 +376,106 @@ Responder:
 
 INFORMAÇÕES ADICIONAIS:
 - Valor da consulta presencial com o Dr. Thiago Silva: R$ 600.
-- Planos de saúde podem ser usados para reembolso, dependendo do contrato.
+- Planos de saúde podem ser usados para reembolso, dependendo do contrato do paciente.
 
 RESUMO FINAL (apenas quando o paciente pedir ou quando fizer sentido encerrar):
 Incluir:
-- suspeita possível
-- tamanho provável
-- grau provável de diástase
+- suspeita possível (em linguagem simples)
+- tamanho provável (pequeno, moderado, maior)
+- grau provável de diástase (leve, moderada, acentuada)
 - impacto da flacidez
-- técnicas possíveis
+- técnicas possíveis (aberta, vídeo, robótica)
 - recuperação estimada:
-  7–10 dias: trabalho leve  
-  15 dias: atividades do dia a dia  
-  30 dias: retorno gradual aos treinos  
+  7–10 dias: trabalho leve
+  15 dias: atividades do dia a dia
+  30 dias: retorno gradual aos treinos.
 
 ENTREGA FINAL OBRIGATÓRIA:
-“Com base no que você me contou, isso é o que costuma aparecer em casos parecidos. A confirmação depende do exame físico presencial.  
-Se quiser, você pode agendar sua consulta pelo link: https://wa.me/5581996313869”
+“Com base no que você me contou, isso é o que costuma aparecer em casos parecidos. A confirmação depende do exame físico presencial. Se quiser, você pode agendar sua consulta pelo link: https://wa.me/5581996313869”
 
 Sempre finalizar usando o nome do paciente quando ele informar.
+`;
+
+    const messagesEl = document.getElementById("messages");
+    const inputEl = document.getElementById("userInput");
+    const sendBtn = document.getElementById("sendBtn");
+    const typingEl = document.getElementById("typing");
+
+    // Histórico de mensagens (para manter contexto)
+    const chatHistory = [
+      { role: "system", content: systemPrompt }
+    ];
+
+    function addMessage(text, sender = "bot") {
+      const div = document.createElement("div");
+      div.className = "message " + sender;
+      div.textContent = text;
+      messagesEl.appendChild(div);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    async function callOpenAI(userMessage) {
+      try {
+        typingEl.textContent = "Mini-Consulta está digitando...";
+        sendBtn.disabled = true;
+
+        // Adiciona mensagem do usuário ao histórico
+        chatHistory.push({ role: "user", content: userMessage });
+
+        // Chama a rota do servidor /api/chat (Vercel)
+        const response = await fetch("/api/chat", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            messages: chatHistory
+          })
+        });
+
+        if (!response.ok) {
+          const errText = await response.text();
+          throw new Error("Erro na API: " + errText);
+        }
+
+        const data = await response.json();
+        const botText = data.reply || "Não consegui gerar uma resposta agora. Tente novamente.";
+
+        // Adiciona resposta da IA ao histórico
+        chatHistory.push({ role: "assistant", content: botText });
+
+        addMessage(botText, "bot");
+      } catch (err) {
+        console.error(err);
+        addMessage("Houve um problema ao conectar com a Mini-Consulta. Verifique a configuração da API no servidor e tente novamente.", "bot");
+      } finally {
+        typingEl.textContent = "";
+        sendBtn.disabled = false;
+      }
+    }
+
+    // Enviar mensagem
+    sendBtn.addEventListener("click", () => {
+      const text = inputEl.value.trim();
+      if (!text) return;
+      addMessage(text, "user");
+      inputEl.value = "";
+      callOpenAI(text);
+    });
+
+    inputEl.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        sendBtn.click();
+      }
+    });
+
+    // Mensagem inicial do bot
+    addMessage(
+      "Olá! Sou a Mini-Consulta IA Dr. Thiago — desenvolvida com o método utilizado pelo Dr. Thiago Silva para avaliação de hérnias, diástase e alterações da parede abdominal.\n" +
+      "Vou te fazer algumas perguntas rápidas para entender o seu caso e te entregar uma orientação personalizada, baseada nas técnicas minimamente invasivas e robóticas mais modernas.\n\n" +
+      "Para começarmos: onde você sente o abaulamento ou desconforto? E qual o seu nome?",
+      "bot"
+    );
+  </script>
+</body>
+</html>
